@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>断码款补货配码系统 — 周转系数法</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Microsoft YaHei',Arial,sans-serif;background:#f0f2f5;padding:20px;color:#333}
+.container{max-width:1200px;margin:0 auto}
+h1{text-align:center;font-size:20px;margin-bottom:6px;color:#1a1a1a}
+.subtitle{text-align:center;font-size:13px;color:#999;margin-bottom:20px}
+
+.card{background:#fff;border-radius:8px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,0.08)}
+
+.form-row{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.form-group{display:flex;flex-direction:column;min-width:140px}
+.form-group label{font-size:13px;color:#666;margin-bottom:4px;font-weight:bold}
+.form-group input{height:36px;border:1px solid #d9d9d9;border-radius:4px;padding:0 10px;font-size:14px}
+.form-group input:focus{outline:none;border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,0.15)}
+
+.size-table{width:100%;border-collapse:collapse;margin:12px 0}
+.size-table th,.size-table td{padding:8px 6px;text-align:center;border:1px solid #e8e8e8;font-size:13px}
+.size-table .row-label{background:#fafafa;font-weight:bold;text-align:right;padding-right:12px;width:100px;font-size:13px;color:#555;white-space:nowrap}
+.size-table .col-header{background:#fafafa;font-weight:bold;font-size:14px}
+.size-table input{width:80px;height:34px;border:1px solid #d9d9d9;border-radius:3px;text-align:center;font-size:14px;padding:0 4px}
+.size-table input:focus{outline:none;border-color:#1890ff}
+.size-table .turnover-cell{font-size:12px;color:#999;min-width:80px}
+.size-table .btn-del-col{background:#ff4d4f;color:#fff;border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-size:12px}
+.size-table .btn-del-col:hover{background:#ff7875}
+.size-table .btn-add-col{background:#1890ff;color:#fff;border:none;width:34px;height:34px;border-radius:3px;cursor:pointer;font-size:18px;font-weight:bold}
+.size-table .btn-add-col:hover{background:#40a9ff}
+
+.btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:bold}
+.btn-primary{background:#1890ff;color:#fff}
+.btn-primary:hover{background:#40a9ff}
+.btn-success{background:#52c41a;color:#fff}
+.btn-success:hover{background:#73d13d}
+.btn-warning{background:#faad14;color:#fff}
+.btn-warning:hover{background:#ffc53d}
+.btn-gray{background:#d9d9d9;color:#333}
+.btn-gray:hover{background:#bfbfbf}
+.btn-red{background:#ff4d4f;color:#fff}
+.btn-red:hover{background:#ff7875}
+
+.result-table{width:100%;border-collapse:collapse;margin-top:8px}
+.result-table th,.result-table td{padding:10px 8px;text-align:center;border:1px solid #e8e8e8;font-size:14px}
+.result-table th{background:#001529;color:#fff;font-weight:bold}
+.result-table .highlight{background:#e6f7ff;font-weight:bold;font-size:16px;color:#0050b3}
+.result-table .overstock{background:#fff1f0;color:#cf1322}
+.result-table .understock{background:#fff7e6;color:#d46b08}
+
+.summary{margin-top:12px;padding:16px;background:#fafafa;border-radius:4px;font-size:14px;line-height:2}
+.summary .k-value{font-size:18px;color:#0050b3;font-weight:bold}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:12px;margin:2px}
+.tag-red{background:#fff1f0;color:#cf1322}
+.tag-orange{background:#fff7e6;color:#d46b08}
+.tag-green{background:#f6ffed;color:#389e0d}
+
+.check-row{background:#f6ffed;font-weight:bold}
+.check-row td{font-size:15px}
+
+.advantage-box{margin-top:12px;padding:14px;background:#e6f7ff;border-left:4px solid #1890ff;border-radius:4px;font-size:13px;line-height:1.8}
+
+/* 历史记录 */
+.history-list{display:flex;flex-direction:column;gap:8px}
+.history-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#fafafa;border:1px solid #e8e8e8;border-radius:6px;cursor:pointer;transition:all 0.2s}
+.history-item:hover{background:#e6f7ff;border-color:#91d5ff}
+.history-item .hi-left{flex:1;min-width:0}
+.history-item .hi-title{font-size:15px;font-weight:bold;color:#1a1a1a}
+.history-item .hi-detail{font-size:12px;color:#999;margin-top:4px}
+.history-item .hi-right{text-align:right;flex-shrink:0;margin-left:16px}
+.history-item .hi-k{font-size:18px;font-weight:bold;color:#0050b3}
+.history-item .hi-date{font-size:11px;color:#ccc;margin-top:2px}
+.history-item .hi-delete{background:none;border:none;color:#ccc;cursor:pointer;font-size:18px;padding:4px 8px;margin-left:8px;border-radius:3px}
+.history-item .hi-delete:hover{color:#ff4d4f;background:#fff1f0}
+.history-empty{text-align:center;color:#ccc;padding:30px;font-size:14px}
+.history-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.history-header h3{font-size:16px;color:#333}
+.history-count{font-size:12px;color:#999}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>断码款补货配码系统</h1>
+<p class="subtitle">统一周转系数法 — 补完后所有尺码可售周期完全一致</p>
+
+<div class="card">
+  <div class="form-row">
+    <div class="form-group">
+      <label>款式</label>
+      <input id="styleName" placeholder="如：K123">
+    </div>
+    <div class="form-group">
+      <label>颜色</label>
+      <input id="colorName" placeholder="如：黑色">
+    </div>
+    <div class="form-group">
+      <label>总计划补货件数</label>
+      <input id="totalCut" type="number" min="1" placeholder="如：500">
+    </div>
+  </div>
+
+  <table class="size-table" id="inputTable"></table>
+
+  <div class="btn-row">
+    <button class="btn btn-warning" onclick="loadPreset()">加载常用尺码</button>
+    <button class="btn btn-gray" onclick="clearAll()">清空</button>
+  </div>
+
+  <div class="btn-row" style="margin-top:8px">
+    <button class="btn btn-success" onclick="calculate()" style="font-size:16px;padding:10px 40px">开始补货计算</button>
+  </div>
+</div>
+
+<div class="card hidden" id="resultCard"></div>
+
+<div class="card" id="historyCard">
+  <div class="history-header">
+    <h3>补单历史记录</h3>
+    <span class="history-count" id="historyCount"></span>
+  </div>
+  <div id="historyList"></div>
+</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'replenish_history';
+const DEFAULT_SIZES = ['S','M','L','XL'];
+let lastResult = null;
+
+// ==================== 本地存储 ====================
+
+function loadHistory(){
+  try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch(e){ return []; }
+}
+function saveHistory(list){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
+function addToHistory(entry){
+  const list = loadHistory();
+  list.unshift(entry);
+  saveHistory(list);
+  renderHistory();
+}
+function deleteHistory(id){
+  let list = loadHistory();
+  list = list.filter(h => h.id !== id);
+  saveHistory(list);
+  renderHistory();
+}
+function clearHistory(){
+  if(confirm('确定清空所有补单历史？此操作不可恢复。')) {
+    saveHistory([]);
+    renderHistory();
+  }
+}
+
+// ==================== 输入表格（数据驱动，每次变动全量重建） ====================
+
+let sizeList = []; // {name, stock, sold} — 单一数据源
+
+function getSizeInputs(){
+  // 重建前先从 DOM 读取当前值保留
+  const names = document.querySelectorAll('#inputTable .size-name-inp');
+  const stocks = document.querySelectorAll('#inputTable .stock-inp');
+  const solds = document.querySelectorAll('#inputTable .sold-inp');
+  const result = [];
+  for(let i=0; i<names.length; i++){
+    if(!names[i] || !stocks[i] || !solds[i]) continue;
+    const name = names[i].value.trim();
+    if(!name) continue;
+    result.push({ name, stock: parseInt(stocks[i].value)||0, sold: parseInt(solds[i].value)||0 });
+  }
+  return result;
+}
+
+function renderTable(newSizeList){
+  if(newSizeList !== undefined) sizeList = newSizeList;
+  else sizeList = getSizeInputs(); // 从 DOM 保留当前数据
+
+  if(sizeList.length === 0) sizeList = DEFAULT_SIZES.map(n => ({name:n, stock:0, sold:0}));
+
+  const table = document.getElementById('inputTable');
+  let html = '<thead><tr><th class="row-label">尺码</th>';
+  sizeList.forEach(s => {
+    html += `<th class="col-header"><input class="size-name-inp" value="${escHtml(s.name)}" placeholder="尺码" oninput="onSizeNameChange(this)" style="width:70px;text-align:center;font-weight:bold;font-size:14px"></th>`;
+  });
+  html += '<th style="width:50px;background:#fff"><button class="btn-add-col" onclick="addSize()" title="添加尺码">+</button></th></tr></thead>';
+
+  html += '<tbody>';
+  html += '<tr><td class="row-label">现有库存</td>';
+  sizeList.forEach((s,i) => {
+    html += `<td><input type="number" min="0" class="stock-inp" value="${s.stock}" oninput="liveTurnover()" data-idx="${i}"></td>`;
+  });
+  html += '<td></td></tr>';
+
+  html += '<tr><td class="row-label">已售数量</td>';
+  sizeList.forEach((s,i) => {
+    html += `<td><input type="number" min="0" class="sold-inp" value="${s.sold}" oninput="liveTurnover()" data-idx="${i}"></td>`;
+  });
+  html += '<td></td></tr>';
+
+  html += '<tr><td class="row-label">当前周转系数</td>';
+  sizeList.forEach((s,i) => {
+    html += '<td class="turnover-cell" id="to-cell-'+i+'">-</td>';
+  });
+  html += '<td></td></tr>';
+
+  html += '<tr><td class="row-label">操作</td>';
+  sizeList.forEach((s,i) => {
+    html += `<td><button class="btn-del-col" onclick="deleteSize(${i})">×</button></td>`;
+  });
+  html += '<td></td></tr>';
+  html += '</tbody>';
+
+  table.innerHTML = html;
+  liveTurnover();
+}
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function onSizeNameChange(inp){
+  // 更新 sizeList 中的 name
+  const idx = Array.from(document.querySelectorAll('.size-name-inp')).indexOf(inp);
+  if(idx >= 0 && idx < sizeList.length) sizeList[idx].name = inp.value.trim();
+  liveTurnover();
+}
+
+function addSize(){
+  sizeList.push({name:'', stock:0, sold:0});
+  renderTable(sizeList);
+}
+
+function deleteSize(idx){
+  sizeList.splice(idx, 1);
+  renderTable(sizeList);
+}
+
+function liveTurnover(){
+  const stocks = document.querySelectorAll('#inputTable .stock-inp');
+  const solds = document.querySelectorAll('#inputTable .sold-inp');
+  for(let i=0; i<stocks.length; i++){
+    const td = document.getElementById('to-cell-'+i);
+    if(!td) continue;
+    const stock = parseInt(stocks[i].value) || 0;
+    const sold = parseInt(solds[i].value) || 0;
+    if(sold > 0){
+      td.textContent = (stock / sold).toFixed(3);
+      td.style.color = stock/sold < 0.5 ? '#cf1322' : stock/sold > 2 ? '#389e0d' : '#999';
+    } else {
+      td.textContent = '-';
+      td.style.color = '#999';
+    }
+  }
+}
+
+function parseSizes(){
+  // 从 DOM 读取最新值
+  const names = document.querySelectorAll('#inputTable .size-name-inp');
+  const stocks = document.querySelectorAll('#inputTable .stock-inp');
+  const solds = document.querySelectorAll('#inputTable .sold-inp');
+  const data = [];
+  for(let i=0; i<names.length; i++){
+    const name = names[i].value.trim();
+    const stock = parseInt(stocks[i].value) || 0;
+    const sold = parseInt(solds[i].value) || 0;
+    if(name) data.push({size: name, stock, sold});
+  }
+  return data;
+}
+
+function loadPreset(){
+  renderTable(DEFAULT_SIZES.map(n => ({name:n, stock:0, sold:0})));
+}
+
+function clearAll(){
+  document.getElementById('styleName').value = '';
+  document.getElementById('colorName').value = '';
+  document.getElementById('totalCut').value = '';
+  document.getElementById('resultCard').classList.add('hidden');
+  document.getElementById('resultCard').innerHTML = '';
+  lastResult = null;
+  loadPreset();
+}
+
+// ==================== 核心计算 ====================
+
+function calculate(){
+  const styleName = document.getElementById('styleName').value.trim() || '未命名款';
+  const colorName = document.getElementById('colorName').value.trim() || '未命名色';
+  const totalReplenish = parseInt(document.getElementById('totalCut').value) || 0;
+
+  if(totalReplenish <= 0){ alert('请输入有效的总计划补货件数'); return; }
+
+  const sizes = parseSizes();
+  if(sizes.length === 0){ alert('请至少添加一个尺码'); return; }
+
+  const totalStock = sizes.reduce((s,x) => s + x.stock, 0);
+  const totalSales = sizes.reduce((s,x) => s + x.sold, 0);
+
+  if(totalSales === 0){ alert('所有尺码已售均为0，无法计算周转系数。请先录入销售数据。'); return; }
+
+  const k = (totalReplenish + totalStock) / totalSales;
+
+  sizes.forEach(s => { s.raw = k * s.sold - s.stock; });
+
+  sizes.forEach(s => {
+    if(s.raw < 0){ s.allocation = 0; s.capped = true; }
+    else{ s.allocation = s.raw; s.capped = false; }
+  });
+
+  const rawSum = sizes.reduce((s,x) => s + x.allocation, 0);
+  if(rawSum > 0){
+    const scale = totalReplenish / rawSum;
+    sizes.forEach(s => { if(!s.capped) s.allocation = s.allocation * scale; });
+  }
+
+  let allocated = 0;
+  sizes.forEach(s => { s.allocation = Math.round(s.allocation); allocated += s.allocation; });
+
+  let diff = totalReplenish - allocated;
+  if(diff !== 0){
+    sizes.forEach(s => {
+      if(s.capped) s.frac = -1;
+      else s.frac = Math.abs(s.raw - Math.round(s.raw));
+    });
+    const order = [...sizes].map((s,i) => ({i, frac: s.frac, capped: s.capped}))
+      .filter(x => !x.capped).sort((a,b) => b.frac - a.frac);
+    let idx = 0;
+    while(diff > 0 && idx < order.length){ sizes[order[idx].i].allocation++; diff--; idx = (idx + 1) % order.length; }
+    idx = 0;
+    while(diff < 0 && idx < order.length){
+      if(sizes[order[idx].i].allocation > 0){ sizes[order[idx].i].allocation--; diff++; }
+      idx++;
+    }
+  }
+
+  sizes.forEach(s => {
+    s.afterStock = s.stock + s.allocation;
+    s.afterTurnover = s.sold > 0 ? s.afterStock / s.sold : 0;
+    s.beforeTurnover = s.sold > 0 ? s.stock / s.sold : 0;
+  });
+
+  const allocSum = sizes.reduce((s,x) => s + x.allocation, 0);
+  const now = new Date();
+  const dateStr = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0')+' '+String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+
+  lastResult = { styleName, colorName, totalReplenish, totalStock, totalSales, k, sizes, allocSum, date: dateStr };
+
+  addToHistory({
+    id: now.getTime(), styleName, colorName, totalReplenish,
+    sizes: sizes.map(s => ({ size: s.size, stock: s.stock, sold: s.sold })),
+    result: { totalStock, totalSales, k, allocSum,
+      sizeResults: sizes.map(s => ({ size: s.size, allocation: s.allocation, afterStock: s.afterStock, afterTurnover: s.afterTurnover, beforeTurnover: s.beforeTurnover, capped: s.capped }))
+    },
+    date: dateStr
+  });
+  showResult();
+}
+
+// ==================== 结果展示 ====================
+
+function showResult(){
+  if(!lastResult) return;
+  const { styleName, colorName, totalReplenish, totalStock, totalSales, k, sizes, allocSum } = lastResult;
+  const card = document.getElementById('resultCard');
+  card.classList.remove('hidden');
+
+  let html = `<h2 style="font-size:18px;margin-bottom:4px">${styleName} / ${colorName}</h2>`;
+  html += `<div class="summary">
+    <strong>计算公式过程：</strong><br>
+    ① 总库存 = ${totalStock} 件 &nbsp;|&nbsp; 总已售 = ${totalSales} 件<br>
+    ② 统一周转系数 <span class="k-value">k = (${totalReplenish} + ${totalStock}) ÷ ${totalSales} = ${k.toFixed(6)}</span><br>
+    ③ 每个尺码建议补货量 = k × 该码已售 − 该码现有库存，取整
+  </div>`;
+
+  html += `<table class="result-table"><thead><tr>
+    <th>尺码</th><th>现有库存</th><th>已售数量</th><th>补前周转系数</th><th>建议补货量</th><th>补完后库存</th><th>补完后周转系数</th><th>状态</th>
+  </tr></thead><tbody>`;
+
+  sizes.forEach(s => {
+    let statusHtml = '';
+    if(s.capped){ statusHtml = '<span class="tag tag-green">库存超标·不补</span>'; }
+    else if(s.allocation === 0){ statusHtml = '<span class="tag tag-green">刚好平衡</span>'; }
+    else if(s.beforeTurnover < k * 0.5){ statusHtml = '<span class="tag tag-red">畅销断码·优先补</span>'; }
+    else if(s.beforeTurnover < k * 0.8){ statusHtml = '<span class="tag tag-orange">偏低·需补</span>'; }
+    else{ statusHtml = '<span class="tag tag-green">正常补充</span>'; }
+
+    html += `<tr>
+      <td class="size-name">${s.size}</td><td>${s.stock}</td><td>${s.sold}</td>
+      <td class="${s.beforeTurnover < k * 0.5 ? 'overstock' : ''}">${s.sold > 0 ? s.beforeTurnover.toFixed(3) : '-'}</td>
+      <td class="highlight">${s.allocation}</td><td>${s.afterStock}</td>
+      <td>${s.sold > 0 ? s.afterTurnover.toFixed(3) : '-'}</td><td>${statusHtml}</td>
+    </tr>`;
+  });
+
+  html += `<tr class="check-row">
+    <td>合计</td><td>${totalStock}</td><td>${totalSales}</td><td>-</td><td>${allocSum}</td><td>${totalStock + allocSum}</td>
+    <td colspan="2">${allocSum === totalReplenish ? '✓ 补货总数与计划一致' : '⚠ 差异: '+(allocSum - totalReplenish)}</td>
+  </tr></tbody></table>`;
+
+  html += `<div class="advantage-box">
+    <strong>方案优势说明：</strong><br>
+    1. <b>补后周转完全同步：</b>所有尺码补完后库存÷已售的统一系数 k = ${k.toFixed(3)}，意味着各尺码可售周期完全一致，不再出现畅销码断货、滞销码积压的错配。<br>
+    2. <b>自动识别断码优先级：</b>补前周转系数远低于 k 的尺码（${sizes.filter(s => s.beforeTurnover < k * 0.5).map(s => s.size).join('、') || '无'}）即为紧急断码，系统自动将有限的补货资源向这些畅销断码倾斜，堵住订单流失缺口。<br>
+    3. <b>避免库存积压：</b>补前周转系数高于 k 的尺码（${sizes.filter(s => s.beforeTurnover > k).map(s => s.size).join('、') || '无'}）自动少补或不补，防止大码/小码库存越积越多。<br>
+    4. <b>减少决策偏差：</b>按公式统一分配，杜绝凭经验拍板导致的补货偏差，每一件都花在刀刃上。
+  </div>`;
+
+  html += `<div class="btn-row" style="margin-top:14px">
+    <button class="btn btn-primary" onclick="window.print()">打印结果</button>
+    <button class="btn btn-gray" onclick="exportCSV()">导出CSV</button>
+  </div>`;
+  card.innerHTML = html;
+  card.scrollIntoView({behavior:'smooth'});
+}
+
+// ==================== 导出 ====================
+
+function exportCSV(){
+  if(!lastResult){ alert('请先计算后再导出'); return; }
+  const { styleName, colorName, totalReplenish, totalStock, totalSales, k, sizes, allocSum } = lastResult;
+  let csv = '尺码,现有库存,已售数量,补前周转系数,建议补货量,补完后库存,补完后周转系数\n';
+  sizes.forEach(s => {
+    csv += `${s.size},${s.stock},${s.sold},${s.sold>0?s.beforeTurnover.toFixed(3):'-'},${s.allocation},${s.afterStock},${s.sold>0?s.afterTurnover.toFixed(3):'-'}\n`;
+  });
+  csv += `合计,${totalStock},${totalSales},-,${allocSum},${totalStock+allocSum},\n`;
+  csv += `\n款式,${styleName}\n颜色,${colorName}\n总计划补货件数,${totalReplenish}\n统一周转系数k,${k.toFixed(6)}`;
+  const blob = new Blob(['﻿'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${styleName}_${colorName}_补货配码.csv`;
+  a.click();
+}
+
+// ==================== 历史记录 ====================
+
+function renderHistory(){
+  const list = loadHistory();
+  const container = document.getElementById('historyList');
+  const countEl = document.getElementById('historyCount');
+  countEl.textContent = list.length > 0 ? `共 ${list.length} 条记录` : '';
+
+  if(list.length === 0){
+    container.innerHTML = '<div class="history-empty">暂无补单历史，完成一次计算后自动记录</div>';
+    return;
+  }
+  let html = '<div class="history-list">';
+  list.forEach(h => {
+    const allocSummary = h.result.sizeResults.map(r => `${r.size}:${r.allocation}`).join(' ');
+    html += `
+    <div class="history-item" onclick="loadHistoryEntry(${h.id})" title="点击加载此记录到计算面板">
+      <div class="hi-left">
+        <div class="hi-title">${h.styleName} / ${h.colorName}</div>
+        <div class="hi-detail">计划 ${h.totalReplenish} 件 | 总库存 ${h.result.totalStock} | 总已售 ${h.result.totalSales} | 分配: ${allocSummary}</div>
+      </div>
+      <div class="hi-right">
+        <div class="hi-k">k=${h.result.k.toFixed(4)}</div>
+        <div class="hi-date">${h.date}</div>
+      </div>
+      <button class="hi-delete" onclick="event.stopPropagation();deleteHistory(${h.id})" title="删除此记录">×</button>
+    </div>`;
+  });
+  html += '</div>';
+  html += `<div class="btn-row" style="margin-top:12px">
+    <button class="btn btn-red" onclick="clearHistory()" style="font-size:12px;padding:4px 12px">清空全部历史</button></div>`;
+  container.innerHTML = html;
+}
+
+function loadHistoryEntry(id){
+  const list = loadHistory();
+  const h = list.find(x => x.id === id);
+  if(!h) return;
+  document.getElementById('styleName').value = h.styleName;
+  document.getElementById('colorName').value = h.colorName;
+  document.getElementById('totalCut').value = h.totalReplenish;
+  renderTable(h.sizes.map(s => ({name: s.size, stock: s.stock, sold: s.sold})));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+init();
+function init(){
+  loadPreset();
+  renderHistory();
+}
+</script>
+</body>
+</html>
