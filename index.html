@@ -30,6 +30,7 @@ h1{text-align:center;font-size:20px;margin-bottom:6px;color:#1a1a1a}
 .size-table .btn-del-col:hover{background:#ff7875}
 .size-table .btn-add-col{background:#1890ff;color:#fff;border:none;width:34px;height:34px;border-radius:3px;cursor:pointer;font-size:18px;font-weight:bold}
 .size-table .btn-add-col:hover{background:#40a9ff}
+.mobile-size-list{display:none}
 
 .btn-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
 .btn{padding:8px 20px;border:none;border-radius:4px;cursor:pointer;font-size:14px;font-weight:bold}
@@ -80,6 +81,63 @@ h1{text-align:center;font-size:20px;margin-bottom:6px;color:#1a1a1a}
 .history-header h3{font-size:16px;color:#333}
 .history-count{font-size:12px;color:#999}
 .hidden{display:none}
+
+@media (max-width: 700px){
+  body{padding:14px;background:#f5f6f8}
+  .container{width:100%;max-width:none}
+  h1{font-size:24px;line-height:1.2;margin:8px 0 8px}
+  .subtitle{font-size:14px;line-height:1.45;margin:0 auto 16px;max-width:340px}
+  .card{padding:14px;margin-bottom:12px;border-radius:8px}
+
+  .form-row{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px}
+  .form-group{min-width:0;width:100%}
+  .form-group label{font-size:15px}
+  .form-group input{width:100%;height:46px;font-size:16px}
+
+  .size-table{display:none}
+  .mobile-size-list{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+  .mobile-size-item{border:1px solid #e8e8e8;border-radius:8px;background:#fafafa;padding:12px}
+  .mobile-size-head{display:grid;grid-template-columns:auto minmax(0,1fr) 40px;gap:8px;align-items:center;margin-bottom:10px}
+  .mobile-size-head label,.mobile-field label,.mobile-turnover-row span{font-size:13px;font-weight:bold;color:#555}
+  .mobile-size-head input,.mobile-field input{width:100%;height:42px;border:1px solid #d9d9d9;border-radius:4px;text-align:center;font-size:16px;padding:0 8px;background:#fff}
+  .mobile-size-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .mobile-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+  .mobile-turnover-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid #e8e8e8;color:#666}
+  .mobile-turnover{font-size:16px;color:#999}
+  .mobile-add-size{height:42px;border:1px dashed #1890ff;border-radius:6px;background:#f0f8ff;color:#0050b3;font-size:15px;font-weight:bold}
+  .mobile-size-head .btn-del-col{width:40px;height:40px;padding:0;border:0;border-radius:6px;background:#ff4d4f;color:#fff;font-size:18px}
+
+  .btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+  .calc-row{grid-template-columns:1fr}
+  .btn{width:100%;min-height:46px;padding:10px 12px;font-size:16px}
+  .btn-success{font-size:18px!important;padding:12px!important}
+
+  .summary{padding:12px;font-size:13px;line-height:1.7}
+  .summary .k-value{display:inline-block;font-size:16px}
+  .result-table,.result-table thead,.result-table tbody,.result-table tr,.result-table td{display:block;width:100%}
+  .result-table{border-collapse:separate;border-spacing:0}
+  .result-table thead{display:none}
+  .result-table tr{border:1px solid #e8e8e8;border-radius:8px;margin:0 0 10px;background:#fff;overflow:hidden}
+  .result-table td{display:flex;justify-content:space-between;gap:12px;text-align:right;border:0;border-bottom:1px solid #f0f0f0;font-size:14px}
+  .result-table td:last-child{border-bottom:0}
+  .result-table td::before{font-weight:bold;color:#555;text-align:left;white-space:nowrap}
+  .result-table td:nth-child(1)::before{content:"尺码"}
+  .result-table td:nth-child(2)::before{content:"现有库存"}
+  .result-table td:nth-child(3)::before{content:"已售数量"}
+  .result-table td:nth-child(4)::before{content:"补前周转"}
+  .result-table td:nth-child(5)::before{content:"建议补货"}
+  .result-table td:nth-child(6)::before{content:"补后库存"}
+  .result-table td:nth-child(7)::before{content:"补后周转"}
+  .result-table td:nth-child(8)::before{content:"状态"}
+  .check-row td:nth-child(7)::before{content:"检查"}
+  .result-table .highlight{font-size:18px}
+  .check-row{background:#f6ffed}
+  .advantage-box{font-size:13px;line-height:1.65;padding:12px}
+
+  .history-item{align-items:flex-start;gap:8px;flex-wrap:wrap;padding:12px}
+  .history-item .hi-right{text-align:left;margin-left:0}
+  .history-item .hi-delete{margin-left:auto}
+}
 </style>
 </head>
 <body>
@@ -104,13 +162,14 @@ h1{text-align:center;font-size:20px;margin-bottom:6px;color:#1a1a1a}
   </div>
 
   <table class="size-table" id="inputTable"></table>
+  <div class="mobile-size-list" id="mobileSizeList"></div>
 
   <div class="btn-row">
     <button class="btn btn-warning" onclick="loadPreset()">加载常用尺码</button>
     <button class="btn btn-gray" onclick="clearAll()">清空</button>
   </div>
 
-  <div class="btn-row" style="margin-top:8px">
+  <div class="btn-row calc-row" style="margin-top:8px">
     <button class="btn btn-success" onclick="calculate()" style="font-size:16px;padding:10px 40px">开始补货计算</button>
   </div>
 </div>
@@ -166,18 +225,74 @@ function clearHistory(){
 let sizeList = []; // {name, stock, sold} — 单一数据源
 
 function getSizeInputs(){
-  // 重建前先从 DOM 读取当前值保留
-  const names = document.querySelectorAll('#inputTable .size-name-inp');
-  const stocks = document.querySelectorAll('#inputTable .stock-inp');
-  const solds = document.querySelectorAll('#inputTable .sold-inp');
+  syncSizeListFromInputs();
+  return sizeList.filter(s => String(s.name ?? '').trim());
+}
+
+function isMobileViewport(){
+  return window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
+}
+
+function syncSizeListFromInputs(){
+  const mobileList = document.getElementById('mobileSizeList');
+  const table = document.getElementById('inputTable');
+  const scope = isMobileViewport() && mobileList && mobileList.querySelector('[data-field="name"]') ? mobileList : table;
+  if(!scope || !scope.querySelector('[data-field="name"]')) return sizeList;
+
+  const names = scope.querySelectorAll('[data-field="name"]');
+  const stocks = scope.querySelectorAll('[data-field="stock"]');
+  const solds = scope.querySelectorAll('[data-field="sold"]');
   const result = [];
   for(let i=0; i<names.length; i++){
-    if(!names[i] || !stocks[i] || !solds[i]) continue;
-    const name = names[i].value.trim();
-    if(!name) continue;
-    result.push({ name, stock: readLooseInteger(stocks[i]), sold: readLooseInteger(solds[i]) });
+    result.push({
+      name: names[i].value.trim(),
+      stock: stocks[i] ? stocks[i].value.trim() : 0,
+      sold: solds[i] ? solds[i].value.trim() : 0
+    });
   }
-  return result;
+  sizeList = result;
+  return sizeList;
+}
+
+function updateSizeField(idx, field, value, source){
+  if(!sizeList[idx]) return;
+  sizeList[idx][field] = field === 'name' ? value.trim() : value;
+  document.querySelectorAll(`[data-idx="${idx}"][data-field="${field}"]`).forEach(inp => {
+    if(inp !== source) inp.value = value;
+  });
+  liveTurnover();
+}
+
+function renderMobileSizes(){
+  const container = document.getElementById('mobileSizeList');
+  if(!container) return;
+
+  let html = '';
+  sizeList.forEach((s,i) => {
+    html += `<div class="mobile-size-item">
+      <div class="mobile-size-head">
+        <label>尺码</label>
+        <input class="mobile-size-name-inp" data-idx="${i}" data-field="name" value="${escHtml(s.name)}" placeholder="尺码" oninput="updateSizeField(${i},'name',this.value,this)">
+        <button type="button" class="btn-del-col" onclick="deleteSize(${i})" title="删除尺码">×</button>
+      </div>
+      <div class="mobile-size-fields">
+        <div class="mobile-field">
+          <label>现有库存</label>
+          <input type="number" min="0" inputmode="numeric" data-idx="${i}" data-field="stock" value="${escHtml(s.stock)}" oninput="updateSizeField(${i},'stock',this.value,this)">
+        </div>
+        <div class="mobile-field">
+          <label>已售数量</label>
+          <input type="number" min="0" inputmode="numeric" data-idx="${i}" data-field="sold" value="${escHtml(s.sold)}" oninput="updateSizeField(${i},'sold',this.value,this)">
+        </div>
+      </div>
+      <div class="mobile-turnover-row">
+        <span>当前周转系数</span>
+        <strong class="mobile-turnover" data-turnover-idx="${i}">-</strong>
+      </div>
+    </div>`;
+  });
+  html += '<button type="button" class="mobile-add-size" onclick="addSize()">+ 添加尺码</button>';
+  container.innerHTML = html;
 }
 
 function renderTable(newSizeList){
@@ -188,27 +303,27 @@ function renderTable(newSizeList){
 
   const table = document.getElementById('inputTable');
   let html = '<thead><tr><th class="row-label">尺码</th>';
-  sizeList.forEach(s => {
-    html += `<th class="col-header"><input class="size-name-inp" value="${escHtml(s.name)}" placeholder="尺码" oninput="onSizeNameChange(this)" style="width:70px;text-align:center;font-weight:bold;font-size:14px"></th>`;
+  sizeList.forEach((s,i) => {
+    html += `<th class="col-header"><input class="size-name-inp" data-idx="${i}" data-field="name" value="${escHtml(s.name)}" placeholder="尺码" oninput="updateSizeField(${i},'name',this.value,this)" style="width:70px;text-align:center;font-weight:bold;font-size:14px"></th>`;
   });
   html += '<th style="width:50px;background:#fff"><button class="btn-add-col" onclick="addSize()" title="添加尺码">+</button></th></tr></thead>';
 
   html += '<tbody>';
   html += '<tr><td class="row-label">现有库存</td>';
   sizeList.forEach((s,i) => {
-    html += `<td><input type="number" min="0" class="stock-inp" value="${escHtml(s.stock)}" oninput="liveTurnover()" data-idx="${i}"></td>`;
+    html += `<td><input type="number" min="0" inputmode="numeric" class="stock-inp" data-idx="${i}" data-field="stock" value="${escHtml(s.stock)}" oninput="updateSizeField(${i},'stock',this.value,this)"></td>`;
   });
   html += '<td></td></tr>';
 
   html += '<tr><td class="row-label">已售数量</td>';
   sizeList.forEach((s,i) => {
-    html += `<td><input type="number" min="0" class="sold-inp" value="${escHtml(s.sold)}" oninput="liveTurnover()" data-idx="${i}"></td>`;
+    html += `<td><input type="number" min="0" inputmode="numeric" class="sold-inp" data-idx="${i}" data-field="sold" value="${escHtml(s.sold)}" oninput="updateSizeField(${i},'sold',this.value,this)"></td>`;
   });
   html += '<td></td></tr>';
 
   html += '<tr><td class="row-label">当前周转系数</td>';
   sizeList.forEach((s,i) => {
-    html += '<td class="turnover-cell" id="to-cell-'+i+'">-</td>';
+    html += '<td class="turnover-cell" data-turnover-idx="'+i+'">-</td>';
   });
   html += '<td></td></tr>';
 
@@ -220,6 +335,7 @@ function renderTable(newSizeList){
   html += '</tbody>';
 
   table.innerHTML = html;
+  renderMobileSizes();
   liveTurnover();
 }
 
@@ -238,7 +354,11 @@ function readLooseInteger(input){
 }
 
 function readNonNegativeInteger(input, label){
-  const raw = input.value.trim();
+  return readNonNegativeIntegerValue(input.value, label);
+}
+
+function readNonNegativeIntegerValue(rawValue, label){
+  const raw = String(rawValue ?? '').trim();
   if(raw === '') return 0;
   const value = Number(raw);
   if(!Number.isInteger(value) || value < 0) throw new Error(label + ' 必须是0或正整数');
@@ -263,10 +383,8 @@ function fmtTurnover(value, digits = 3){
 }
 
 function onSizeNameChange(inp){
-  // 更新 sizeList 中的 name
-  const idx = Array.from(document.querySelectorAll('.size-name-inp')).indexOf(inp);
-  if(idx >= 0 && idx < sizeList.length) sizeList[idx].name = inp.value.trim();
-  liveTurnover();
+  const idx = Number(inp.dataset.idx);
+  updateSizeField(idx, 'name', inp.value, inp);
 }
 
 function addSize(){
@@ -280,38 +398,39 @@ function deleteSize(idx){
 }
 
 function liveTurnover(){
-  const stocks = document.querySelectorAll('#inputTable .stock-inp');
-  const solds = document.querySelectorAll('#inputTable .sold-inp');
-  for(let i=0; i<stocks.length; i++){
-    const td = document.getElementById('to-cell-'+i);
-    if(!td) continue;
-    const stock = Number(stocks[i].value);
-    const sold = Number(solds[i].value);
+  for(let i=0; i<sizeList.length; i++){
+    const targets = document.querySelectorAll(`[data-turnover-idx="${i}"]`);
+    if(targets.length === 0) continue;
+    const stock = Number(sizeList[i].stock);
+    const sold = Number(sizeList[i].sold);
     if(Number.isFinite(stock) && stock >= 0 && Number.isFinite(sold) && sold > 0){
-      td.textContent = (stock / sold).toFixed(3);
-      td.style.color = stock/sold < 0.5 ? '#cf1322' : stock/sold > 2 ? '#389e0d' : '#999';
+      const turnover = stock / sold;
+      targets.forEach(td => {
+        td.textContent = turnover.toFixed(3);
+        td.style.color = turnover < 0.5 ? '#cf1322' : turnover > 2 ? '#389e0d' : '#999';
+      });
     } else {
-      td.textContent = '-';
-      td.style.color = '#999';
+      targets.forEach(td => {
+        td.textContent = '-';
+        td.style.color = '#999';
+      });
     }
   }
 }
 
 function parseSizes(){
-  // 从 DOM 读取最新值
-  const names = document.querySelectorAll('#inputTable .size-name-inp');
-  const stocks = document.querySelectorAll('#inputTable .stock-inp');
-  const solds = document.querySelectorAll('#inputTable .sold-inp');
+  syncSizeListFromInputs();
   const data = [];
   const seen = new Set();
-  for(let i=0; i<names.length; i++){
-    const name = names[i].value.trim();
+  for(let i=0; i<sizeList.length; i++){
+    const row = sizeList[i];
+    const name = String(row.name ?? '').trim();
     if(!name) continue;
     const key = name.toLowerCase();
     if(seen.has(key)) throw new Error('尺码 "' + name + '" 重复，请合并后再计算');
     seen.add(key);
-    const stock = readNonNegativeInteger(stocks[i], name + ' 的现有库存');
-    const sold = readNonNegativeInteger(solds[i], name + ' 的已售数量');
+    const stock = readNonNegativeIntegerValue(row.stock, name + ' 的现有库存');
+    const sold = readNonNegativeIntegerValue(row.sold, name + ' 的已售数量');
     data.push({size: name, stock, sold});
   }
   return data;
